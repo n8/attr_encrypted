@@ -157,7 +157,6 @@ module AttrEncrypted
             end
             encrypted_value
           else
-            @attr_encrypted_uses_normal_finder = true
             value
           end
         end
