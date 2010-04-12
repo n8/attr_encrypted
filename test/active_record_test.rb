@@ -1,8 +1,9 @@
 require File.dirname(__FILE__) + '/test_helper'
+require 'ruby-debug'
 
 ActiveRecord::Base.establish_connection :adapter => 'sqlite3', :database => ':memory:'
 
-def create_people_table
+def create_test_tables
   silence_stream(STDOUT) do
     ActiveRecord::Schema.define(:version => 1) do
       create_table :people do |t|
@@ -11,14 +12,21 @@ def create_people_table
         t.string   :encrypted_credentials
         t.string   :salt
       end
+      
+      create_table :things do |t|
+        t.string   :encrypted_name
+        t.integer  :person_id
+      end
     end
   end
 end
 
 # The table needs to exist before defining the class
-create_people_table
+create_test_tables
 
 class Person < ActiveRecord::Base
+  has_many :things
+  
   attr_encrypted :email, :key => 'a secret key'
   attr_encrypted :credentials, :key => Proc.new { |user| Encryptor.encrypt(:value => user.salt, :key => 'some private key') }, :marshal => true
   
@@ -27,6 +35,16 @@ class Person < ActiveRecord::Base
     self.credentials ||= { :username => 'example', :password => 'test' }
   rescue ActiveRecord::MissingAttributeError
   end
+  
+  def wants_things_encrypted?
+    true
+  end
+end
+
+class Thing < ActiveRecord::Base
+  belongs_to :person
+  
+  attr_encrypted :name, :key => 'a secret key', :if => Proc.new{|thing| thing.person.present? && thing.person.wants_things_encrypted?}
 end
 
 class PersonWithValidation < Person
@@ -38,7 +56,7 @@ class ActiveRecordTest < Test::Unit::TestCase
   
   def setup
     ActiveRecord::Base.connection.tables.each { |table| ActiveRecord::Base.connection.drop_table(table) }
-    create_people_table
+    create_test_tables
   end
   
   def test_should_encrypt_email
@@ -93,6 +111,13 @@ class ActiveRecordTest < Test::Unit::TestCase
     @person2 = PersonWithValidation.new :email => @person.email
     assert !@person2.valid?
     assert @person2.errors.on(:encrypted_email)
+  end
+  
+  def test_should_not_encrypt_persons_things
+    person = Person.create(:email => 'test@example.com', :password => 'password')
+    thing = person.things.create(:name => "some test name")
+    assert thing.save
+    assert_not_equal thing.name, thing.encrypted_name
   end
   
 end
