@@ -1,7 +1,7 @@
 Gem::Specification.new do |s| 
   s.name    = 'attr_encrypted'
-  s.version = '1.1.0'
-  s.date    = '2010-01-28'
+  s.version = '1.1.2'
+  s.date    = '2010-04-26'
   
   s.summary     = 'Generates attr_accessors that encrypt and decrypt attributes transparently'
   s.description = 'Generates attr_accessors that encrypt and decrypt attributes transparently'
@@ -40,4 +40,5 @@ Gem::Specification.new do |s|
   
   s.add_dependency('eigenclass', ['>= 1.1.1'])
   s.add_dependency('encryptor', ['>= 1.1.0'])
+  s.add_dependency('mocha', ['>= 0.9.8'])
 end
