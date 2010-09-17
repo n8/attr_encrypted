@@ -1,10 +1,10 @@
 Gem::Specification.new do |s| 
-  s.name    = 'attr_encrypted'
+  s.name    = 'n8-attr_encrypted'
   s.version = '1.1.2'
   s.date    = '2010-04-26'
   
   s.summary     = 'Generates attr_accessors that encrypt and decrypt attributes transparently'
-  s.description = 'Generates attr_accessors that encrypt and decrypt attributes transparently'
+  s.description = 'Generates attr_accessors that encrypt and decrypt attributes transparently. A fork with a kludge to handle :if/:unless Procs with attr_encrypted that uses attributes that may have not been set yet before the original attr_encrypted does its thing. This basically just resaves all the encrypted_attributes in a before_save callback.'
   
   s.author   = 'Sean Huber'
   s.email    = 'shuber@huberry.com'
