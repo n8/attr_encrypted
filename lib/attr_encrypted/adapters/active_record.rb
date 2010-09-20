@@ -1,3 +1,4 @@
+
 if defined?(ActiveRecord)
   module AttrEncrypted
     module Adapters
@@ -15,7 +16,7 @@ if defined?(ActiveRecord)
           
           def resave_encrypted_attributes
             self.class.encrypted_attributes.each do |attribute, encrypted_attribute_method|
-              send("#{attribute}=",  instance_variable_get("@#{attribute}"))
+              send("#{attribute}=", instance_variable_get("@#{attribute}")) if instance_variable_get("@#{attribute}").present?
             end
           end
         end
@@ -62,10 +63,13 @@ if defined?(ActiveRecord)
           end
           method_missing_without_attr_encrypted(method, *args, &block)
         end
-      
+  
+        
       end
     end
   end
+
   
   ActiveRecord::Base.extend AttrEncrypted::Adapters::ActiveRecord
 end
+
